@@ -43,6 +43,42 @@
     .thumb-row{ order:3; width:100%; }
     .badges-row{ flex-direction:column; gap:14px; }
   }
+  .loc-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius-pill);
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.loc-select svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.loc-select select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.loc-select select option {
+  background: white;
+  color: #333;
+  font-weight: 500;
+}
 </style>
 </head>
 <body>
@@ -159,6 +195,27 @@
       <div class="badge-item"><div class="ic">🛡️</div><div>On-time Service<span class="sub">Quality Work</span></div></div>
     </div>
   </main>
+</div>
+<div class="loc-select">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/>
+    <circle cx="12" cy="10" r="2.5"/>
+  </svg>
+
+  <select id="locationSelect">
+    <option value="Bangalore">Bangalore</option>
+    <option value="Hyderabad">Hyderabad</option>
+    <option value="Chennai">Chennai</option>
+    <option value="Vijayawada">Vijayawada</option>
+    <option value="Guntur">Guntur</option>
+    <option value="Ongole">Ongole</option>
+    <option value="Visakhapatnam">Visakhapatnam</option>
+    <option value="Tirupati">Tirupati</option>
+    <option value="Nellore">Nellore</option>
+    <option value="Mumbai">Mumbai</option>
+    <option value="Delhi">Delhi</option>
+    <option value="Pune">Pune</option>
+  </select>
 </div>
 <script src="assets/js/app.js"></script>
 </body>
