@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: decorai
+      POSTGRES_USER: decorai
+      POSTGRES_PASSWORD: decorai_dev_password
+    volumes:
+      - decorai_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U decorai -d decorai"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      APP_NAME: DecorAI API
+      ENVIRONMENT: production
+      SECRET_KEY: replace-this-before-deployment
+      DATABASE_URL: postgresql+psycopg://decorai:decorai_dev_password@db:5432/decorai
+      FRONTEND_ORIGINS: http://localhost:8080
+      UPLOAD_DIR: uploads
+      GENERATED_DIR: generated
+      MAX_UPLOAD_MB: 10
+      AI_PROVIDER: locked
+      AI_TEXT_MODEL: Salesforce/blip-image-captioning-base
+      SMTP_HOST: ""
+      SMTP_PORT: 587
+      SMTP_USERNAME: ""
+      SMTP_PASSWORD: ""
+      SMTP_FROM_EMAIL: ""
+      SMTP_FROM_NAME: DecorAI
+    volumes:
+      - decorai_uploads:/app/uploads
+      - decorai_generated:/app/generated
+      - decorai_huggingface:/root/.cache/huggingface
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ""
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  decorai_postgres:
+  decorai_uploads:
+  decorai_generated:
+  decorai_huggingface:

@@ -1,0 +1,2 @@
+import {Check} from "lucide-react"; import {Link} from "react-router-dom"; import AppShell from "../components/AppShell";
+export default function OrderSuccess(){return <AppShell title="Order confirmed" eyebrow="THANK YOU"><div className="empty-state success-state"><div className="success-icon"><Check/></div><h3>Your order is on its way.</h3><p>We’ve recorded your order and will keep its status in your account.</p><Link className="button dark" to="/account">View account</Link></div></AppShell>}
