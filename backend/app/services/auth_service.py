@@ -7,32 +7,69 @@ from app.models import User, VerificationCode, Notification
 from app.core.security import hash_password, verify_password, random_code, hash_code, validate_password_strength
 from app.services.email_service import send_email, EmailDeliveryError
 
+
 def create_user(db: Session, name: str, email: str, password: str) -> tuple[User, str]:
     email = email.lower().strip()
+
     try:
         validate_password_strength(password)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
+
     if db.scalar(select(User).where(User.email == email)):
         raise HTTPException(409, "An account with this email already exists")
-    user = User(id=str(uuid4()), name=name.strip(), email=email, password_hash=hash_password(password), email_verified=False)
-    db.add(user); db.flush()
-    code = random_code()
-    vc = VerificationCode(id=str(uuid4()), user_id=user.id, purpose="email_verification",
-                          code_hash=hash_code(code), expires_at=datetime.now(timezone.utc)+timedelta(minutes=10))
-    db.add(vc)
-    db.add(Notification(id=str(uuid4()), user_id=user.id, title="Welcome to DecorAI",
-                        message="Verify your email to unlock your private design studio."))
-    db.commit(); db.refresh(user)
+
+    user = User(
+        id=str(uuid4()),
+        name=name.strip(),
+        email=email,
+        password_hash=hash_password(password),
+        email_verified=False,
+    )
+
     try:
+        db.add(user)
+        db.flush()
+
+        code = random_code()
+
+        vc = VerificationCode(
+            id=str(uuid4()),
+            user_id=user.id,
+            purpose="email_verification",
+            code_hash=hash_code(code),
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+        )
+        db.add(vc)
+
+        db.add(Notification(
+            id=str(uuid4()),
+            user_id=user.id,
+            title="Welcome to DecorAI",
+            message="Verify your email to unlock your private design studio.",
+        ))
+
         send_email(
             email,
             "Your DecorAI verification code",
             f"Your DecorAI verification code is {code}. It expires in 10 minutes.",
         )
+
+        db.commit()
+        db.refresh(user)
+
     except EmailDeliveryError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+        db.rollback()
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to send verification email. Please try again later.",
+        ) from exc
+    except Exception:
+        db.rollback()
+        raise
+
     return user, code
+
 
 def authenticate(db: Session, email: str, password: str) -> User:
     user = db.scalar(select(User).where(User.email == email.lower().strip()))
