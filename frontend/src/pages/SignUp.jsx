@@ -1,8 +1,159 @@
-import {useState} from "react"; import {Link,useNavigate} from "react-router-dom"; import Logo from "../components/Logo"; import {useAuth} from "../context/AuthContext";
-export default function SignUp(){
- const {signUp}=useAuth(),nav=useNavigate();const [form,setForm]=useState({name:"",email:"",password:"",confirm:""});const [error,setError]=useState("");
- async function submit(e){e.preventDefault();setError("");if(form.password!==form.confirm)return setError("Passwords do not match.");
- if(!/(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}/.test(form.password))return setError("Use 8+ characters with uppercase, lowercase, number and special character.");try{await signUp(form);nav(`/verify-email?email=${encodeURIComponent(form.email)}`)}catch(err){setError(err.message)}}
- return <main className="auth-layout"><section className="auth-image"><img src="https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1500&q=90"/><div className="auth-image-copy"><span>YOUR SPACE, YOUR STORY</span><h1>Design the feeling you want to come home to.</h1></div></section><section className="auth-panel"><div className="auth-box"><Logo/><div className="auth-heading"><span className="eyebrow">GET STARTED</span><h2>Create your studio</h2><p>Verify your email to activate your private DecorAI account.</p></div><form className="auth-form" onSubmit={submit}>
- <label>Full name<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Your name"/></label><label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@example.com"/></label><label>Password<input required minLength="8" type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} placeholder="8+ chars · A-Z · a-z · 0-9 · symbol"/></label><div className="password-hint">Strong password required: 8+ characters, uppercase, lowercase, number and symbol.</div><label>Confirm password<input required type="password" value={form.confirm} onChange={e=>setForm({...form,confirm:e.target.value})} placeholder="Repeat password"/></label>{error&&<p className="form-error">{error}</p>}<button className="button dark full">Create account</button></form><p className="auth-switch">Already have an account? <Link to="/signin">Sign in</Link></p></div></section></main>
+
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../components/Logo";
+import { useAuth } from "../context/AuthContext";
+
+export default function SignUp() {
+  const { signUp } = useAuth();
+  const nav = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirm: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e) {
+    e.preventDefault();
+    setError("");
+
+    // Check whether passwords match
+    if (form.password !== form.confirm) {
+      return setError("Passwords do not match.");
+    }
+
+    // Password validation
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+    if (!passwordRegex.test(form.password)) {
+      return setError(
+        "Use 8+ characters with uppercase, lowercase, number and special character."
+      );
+    }
+
+    try {
+      setLoading(true);
+
+      await signUp({
+        ...form,
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+      });
+
+      nav(`/verify-email?email=${encodeURIComponent(form.email.trim())}`);
+    } catch (err) {
+      setError(err.message || "Unable to create your account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="auth-layout">
+      <section className="auth-image">
+        <img
+          src="https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1500&q=90"
+          alt="Beautiful interior design"
+        />
+
+        <div className="auth-image-copy">
+          <span>YOUR SPACE, YOUR STORY</span>
+          <h1>Design the feeling you want to come home to.</h1>
+        </div>
+      </section>
+
+      <section className="auth-panel">
+        <div className="auth-box">
+          <Logo />
+
+          <div className="auth-heading">
+            <span className="eyebrow">GET STARTED</span>
+            <h2>Create your studio</h2>
+            <p>
+              Verify your email to activate your private DecorAI account.
+            </p>
+          </div>
+
+          <form className="auth-form" onSubmit={submit}>
+            <label>
+              Full name
+              <input
+                required
+                value={form.name}
+                onChange={(e) =>
+                  setForm({ ...form, name: e.target.value })
+                }
+                placeholder="Your name"
+              />
+            </label>
+
+            <label>
+              Email
+              <input
+                required
+                type="email"
+                value={form.email}
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
+                placeholder="you@example.com"
+              />
+            </label>
+
+            <label>
+              Password
+              <input
+                required
+                minLength="8"
+                type="password"
+                value={form.password}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                placeholder="8+ chars · A-Z · a-z · 0-9 · symbol"
+              />
+            </label>
+
+            <div className="password-hint">
+              Strong password required: 8+ characters, uppercase, lowercase,
+              number and symbol.
+            </div>
+
+            <label>
+              Confirm password
+              <input
+                required
+                type="password"
+                value={form.confirm}
+                onChange={(e) =>
+                  setForm({ ...form, confirm: e.target.value })
+                }
+                placeholder="Repeat password"
+              />
+            </label>
+
+            {error && <p className="form-error">{error}</p>}
+
+            <button
+              type="submit"
+              className="button dark full"
+              disabled={loading}
+            >
+              {loading ? "Creating account..." : "Create account"}
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Already have an account? <Link to="/signin">Sign in</Link>
+          </p>
+        </div>
+      </section>
+    </main>
+  );
 }
