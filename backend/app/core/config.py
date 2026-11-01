@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     max_upload_mb: int = 10
     frontend_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    # Private demo login
+    demo_access_key: str = ""
+    
+    email_provider: str = "smtp"
+    resend_api_key: str = ""
+    resend_from_email: str = ""
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_username: str = ""

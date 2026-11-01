@@ -87,6 +87,19 @@ SMTP_FROM_EMAIL=yourgmail@gmail.com
 
 Never commit `.env`.
 
+## Render email delivery
+
+If Render logs show `Network is unreachable` while connecting to SMTP, use the HTTPS Resend API instead of SMTP. Verify a sender domain in Resend, then add these environment variables to the Render backend service:
+
+```env
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=verify@your-verified-domain.com
+SMTP_FROM_NAME=DecorAI
+```
+
+Keep the API key in Render's environment settings, not in source control. Redeploy the backend after saving the variables. SMTP remains available by setting `EMAIL_PROVIDER=smtp` and configuring the SMTP variables above.
+
 ## Docker deployment
 
 From the project root:

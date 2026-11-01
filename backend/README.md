@@ -30,7 +30,9 @@ uvicorn app.main:app --reload
 API docs: http://127.0.0.1:8000/docs
 
 ## Email
-For Gmail, create an App Password and place it in `SMTP_PASSWORD`. Never commit `.env`.
+For Gmail, create an App Password and place it in `SMTP_PASSWORD`. Set `EMAIL_PROVIDER=smtp`; never commit `.env`.
+
+For Render or other hosts where SMTP connections are unreachable, use Resend over HTTPS by setting `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, and `RESEND_FROM_EMAIL` to a sender address verified with Resend. `SMTP_FROM_NAME` controls the displayed sender name.
 
 If SMTP is empty in development, verification/reset codes are printed to the backend terminal. This is intentionally a development fallback, not a production email system.
 
